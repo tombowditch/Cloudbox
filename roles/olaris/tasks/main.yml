@@ -1,0 +1,52 @@
+#########################################################################
+# Title:         Cloudbox: Olaris Role                                  #
+# Author(s):     l3uddz                                                 #
+# Originally written by l3uddz, updated by Tom                          #
+# URL:           https://github.com/cloudbox/cloudbox                   #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Create DNS Record on CF
+  include_role:
+    name: cloudflare-dns
+  vars:
+    subdomain: "{{ olaris_web_subdomain }}"
+
+- name: "Stop and remove any existing container"
+  docker_container:
+    name: olaris
+    state: absent
+
+- name: Create directories
+  file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
+  with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
+
+- name: Create and start docker container
+  docker_container:
+    name: olaris
+    image: "{{ olaris_docker_image }}"
+    pull: yes
+    published_ports: "{{ olaris_docker_ports }}"
+    env:
+      OLARIS_UID: "{{ uid }}"
+      OLARIS_GID: "{{ gid }}"
+      TZ: "{{ tz }}"
+      VIRTUAL_HOST: "olaris.{{ user.domain }}"
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: "olaris.{{ user.domain }}"
+      LETSENCRYPT_EMAIL: "{{ user.email }}"
+    volumes: "{{ olaris_docker_volumes }}"
+    devices: "{{ olaris_docker_devices }}"
+    etc_hosts: "{{ olaris_docker_hosts }}"
+    labels:
+      "com.github.cloudbox.cloudbox_managed": "true"
+    networks:
+      - name: cloudbox
+        aliases:
+          - olaris
+    purge_networks: yes
+    restart_policy: unless-stopped
+    state: started
