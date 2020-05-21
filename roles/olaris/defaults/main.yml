@@ -55,14 +55,6 @@ olaris_docker_ports_custom: []
 olaris_docker_ports: "{{ olaris_docker_ports_defaults
   + olaris_docker_ports_custom }}"
 
-# Envs
-olaris_docker_envs_default:
-  OLARIS_UID: "{{ uid }}"
-  OLARIS_GID: "{{ gid }}"
-  TZ: "{{ tz }}"
-
-olaris_docker_envs_custom: {}
-
 # Volumes
 olaris_docker_volumes_default:
   - "{{ olaris_paths_location }}:/home/olaris/.config/olaris"
@@ -82,39 +74,3 @@ olaris_docker_devices: "{{ olaris_docker_devices_default
 olaris_docker_hosts_default: []
 olaris_docker_hosts_custom: []
 olaris_docker_hosts: "{{ olaris_docker_hosts_default | combine(olaris_docker_hosts_custom) }}"
-
-# Labels
-olaris_docker_labels_default: {}
-olaris_docker_labels_custom: {}
-olaris_docker_labels: "{{ docker_labels_common
-  | combine(olaris_docker_labels_default)
-  | combine(olaris_docker_labels_custom) }}"
-
-# Hostname
-olaris_docker_hostname: "{{ olaris_name }}"
-
-# Networks
-olaris_docker_networks_alias: "{{ olaris_name }}"
-olaris_docker_networks_default: []
-olaris_docker_networks_custom: []
-olaris_docker_networks: "{{ docker_networks_common
-  + olaris_docker_networks_default
-  + olaris_docker_networks_custom }}"
-
-# Capabilities
-olaris_docker_capabilities_default: []
-olaris_docker_capabilities_custom: []
-olaris_docker_capabilities: "{{ olaris_docker_capabilities_default
-  + olaris_docker_capabilities_custom }}"
-
-# Security Opts
-olaris_docker_security_opts_default: []
-olaris_docker_security_opts_custom: []
-olaris_docker_security_opts: "{{ olaris_docker_security_opts_default
-  + olaris_docker_security_opts_custom }}"
-
-# Restart Policy
-olaris_docker_restart_policy: unless-stopped
-
-# State
-olaris_docker_state: started
